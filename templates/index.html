@@ -29,10 +29,6 @@
     </div>
     <br>
     <div class="form-group">
-        <label for="project_start">Project start</label>
-        <input type="date" name="project_start" placeholder="Project start" required>
-    </div>
-    <div class="form-group">
         <label for="staticListInput">Status</label>
         <select name="status" id="staticListInput" class="form-control">
             <option value="OPEN">OPEN</option>
@@ -67,8 +63,8 @@
             <tr>
                 <td>{{project.1}}</td>
                 <td>{{project.6}}</td>
-                <td>{{project.3}}</td>
-                <td>{{project.4}}</td>
+                <td>{{project.7}}</td>
+                <td>{{project.8}}</td>
 
                 <td>
                     {% if project.5 == 'OPEN' %}
@@ -138,11 +134,12 @@
         
         <tfoot>
             <tr>
-                <th>Nombre</th>
-                <th>Mail</th>
-                <th>Celular</th>
-                <th>Acciones</th>
-                
+                <th>Project Name</th>
+                <th>Client</th>
+                <th>Project Start</th>
+                <th>Project End</th>
+                <th>Status</th>
+                <th>Action</th>
             </tr>
         </tfoot>
     </table>
