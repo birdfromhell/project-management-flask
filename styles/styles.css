@@ -7,4 +7,30 @@
     background-color: green;
     color: white;
 }
+/* Hide the radio inputs */
+.tabs input[type="radio"] {
+    display: none;
+}
+
+/* Style the labels (tabs) */
+.tabs label {
+    cursor: pointer;
+    display: inline-block;
+    margin-right: .2rem;
+    padding: .5rem 1rem;
+}
+
+/* Style the content sections */
+.tab-content {
+    display: none;
+    padding: 1rem;
+}
+
+/* Display content when a tab is selected */
+.tabs input[type="radio"]:checked + label + .tab-content {
+    display: block;
+}
+.tabs input[type="radio"]:checked + label {
+    background-color: #ddd;
+}
 

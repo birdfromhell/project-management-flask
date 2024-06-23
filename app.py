@@ -35,7 +35,6 @@ def add_project():
         print("Form Data Received:", request.form)
         project_name= request.form ['project_name']
         client = request.form ['client']
-        # project_start = request.form ['project_start']
         status = request.form ['status']
 
         cur=mysql.connection.cursor()
