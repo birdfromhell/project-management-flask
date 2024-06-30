@@ -14,6 +14,7 @@ app.config['MYSQL_USER'] = os.getenv('MYSQL_USER')
 app.config['MYSQL_PASSWORD'] = os.getenv('MYSQL_PASSWORD')
 app.config['MYSQL_DB'] = os.getenv('MYSQL_DB')
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=1)
+app.config['REMEMBER_COOKIE_DURATION'] = timedelta(days=14)
 
 mysql = MySQL(app)
 
@@ -59,6 +60,7 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        remember = request.form.get('remember') == 'on'
         cur = mysql.connection.cursor()
         cur.execute("SELECT * FROM users WHERE username = %s AND password = %s", (username, password))
         user = cur.fetchone()
@@ -67,10 +69,11 @@ def login():
             user_obj = User()
             user_obj.id = user[0]
             session.permanent = True
-            login_user(user_obj)
+            login_user(user_obj,remember=remember)
             return redirect(url_for('index'))
         else:
-            return 'Invalid username or password'
+            flash('Username atau password salah!', 'error')
+            return redirect(url_for('login'))
     return render_template('login.html')
 
 @app.route('/add_project', methods=['POST'])
