@@ -13,16 +13,24 @@
 {% endif %}
 {% endwith %}
     <div class="card card-body">
+        <form action="/add_client" method="POST">
+            <label for="newclient">Add Client (Optional)</label>
+            <input type="text" name="client_name" placeholder="Client Name (optional)" class="form-control">
+            <br>
+            <input type="text" name="client_address" placeholder="Client address (optional)" class="form-control">
+            <br>
+            <button type="submit" class="btn btn-primary btn-block">Add Client</button>
+        </form>
     <form action="/add_project" method="POST">
     <div class="form-group">
         <label for="project_name">Project Name</label>
-        <input type="text" name="project_name" placeholder="Project name"class="form-control" required>
+        <input type="text" name="project_name" placeholder="Project name"class="form-control" >
     </div>
     <br>
     <div class="form-group">
         <label for="client">Client</label>
         <select name="client" class="form-control" required>
-            {% for client in clients %}
+            {% for client in clients|reverse %}
             <option value="{{ client.0 }}">{{ client.1 }}</option>
             {% endfor %}
         </select>

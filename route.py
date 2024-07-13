@@ -1,45 +1,7 @@
-from flask import Flask, render_template, request, url_for, redirect, flash, session
-from flask_mysqldb import MySQL
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-from dotenv import load_dotenv
-import os
-from datetime import timedelta
-
-load_dotenv()
-
-app = Flask(__name__)
-
-app.config['MYSQL_HOST'] = os.getenv('MYSQL_HOST')
-app.config['MYSQL_USER'] = os.getenv('MYSQL_USER')
-app.config['MYSQL_PASSWORD'] = os.getenv('MYSQL_PASSWORD')
-app.config['MYSQL_DB'] = os.getenv('MYSQL_DB')
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=1)
-app.config['REMEMBER_COOKIE_DURATION'] = timedelta(days=14)
-
-mysql = MySQL(app)
-
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = 'login'
-
-app.secret_key='lloveyou'
-    
-
-class User(UserMixin):
-    pass
-
-@login_manager.user_loader
-def user_loader(user_id):
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM users WHERE id = %s", (user_id,))
-    user = cur.fetchone()
-    cur.close()
-    if user:
-        user_obj = User()
-        user_obj.id = user[0]
-        return user_obj
-    return None
-    
+from flask import render_template, request, url_for, redirect, flash, session
+from flask_login import login_user, login_required
+from .app import app, mysql
+from .models import User
 
 @app.route('/')
 @login_required
@@ -92,25 +54,6 @@ def add_project():
 
     return redirect(url_for('index'))
 
-@app.route('/add_client', methods=['POST'])
-def add_client():
-    if request.method == 'POST':
-        print("Form Data Received:", request.form)  # Debugging line
-        client_name = request.form.get('client_name')
-        client_address = request.form.get('client_address')
-
-        if not client_name or not client_address:
-            flash('Client name and address are required!', 'error')
-            return redirect(url_for('index'))
-
-        cur = mysql.connection.cursor()
-        cur.execute('INSERT INTO tb_m_client (client_name, client_address) VALUES(%s,%s)',
-                    (client_name, client_address))
-        mysql.connection.commit()
-        flash('Client Berhasil Ditambahkan')
-
-    return redirect(url_for('index'))
-
 @app.route('/edit_project/<project_id>', methods=['POST'])
 def edit_project(project_id):
     if request.method == 'POST':
@@ -152,6 +95,3 @@ def change_status(project_id):
     cur.execute(f'UPDATE tb_m_project SET project_status = "{status}" WHERE project_id = {project_id}')
     mysql.connection.commit()
     return redirect(url_for('index'))
-
-if __name__=='__main__':
-    app.run(port=8080, debug=True)
