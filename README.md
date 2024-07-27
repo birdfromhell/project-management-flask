@@ -5,7 +5,6 @@
 
 
 <p align="center">
-<a href="https://github.com/ShaanCoding">📱 Visit this Project</a>
 </p>
  
 <h2 id="technologies">💻 Technologies</h2>
