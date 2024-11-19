@@ -1,161 +1,222 @@
-{% extends 'layout.html'%}
-{% block body %}
-<div class="row">
-    <div class="col-md-3">
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-{% for message in messages %}
-    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-        <p>{{ message }}</p>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-{% endfor %}
-{% endif %}
-{% endwith %}
-    <div class="card card-body">
-        <form action="/add_client" method="POST">
-            <label for="newclient">Add Client (Optional)</label>
-            <input type="text" name="client_name" placeholder="Client Name (optional)" class="form-control">
-            <br>
-            <input type="text" name="client_address" placeholder="Client address (optional)" class="form-control">
-            <br>
-            <button type="submit" class="btn btn-primary btn-block">Add Client</button>
-        </form>
-    <form action="/add_project" method="POST">
-    <div class="form-group">
-        <label for="project_name">Project Name</label>
-        <input type="text" name="project_name" placeholder="Project name"class="form-control" >
-    </div>
-    <br>
-    <div class="form-group">
-        <label for="client">Client</label>
-        <select name="client" class="form-control" required>
-            {% for client in clients|reverse %}
-            <option value="{{ client.0 }}">{{ client.1 }}</option>
-            {% endfor %}
-        </select>
-    </div>
-    <br>
-    <div class="form-group">
-        <label for="staticListInput">Status</label>
-        <select name="status" id="staticListInput" class="form-control">
-            <option value="OPEN">OPEN</option>
-            <option value="DOING">DOING</option>
-            <option value="DONE">DONE</option>
-        </select>
-    </div>
-    <br>
-    <div class="form-group">
-    <button type="submit" class="btn btn-primary btn-block">
-    Add Project
-    </button>
-    </div>
-    </form>
-    </div>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Management</title>
+    
+    <!-- DataTables CSS -->
+    <link href="/static/DataTables/DataTables-1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet"/>
+    <link href="/static/Buttons-2.3.6/css/buttons.bootstrap5.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+    
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .card {
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            border: none;
+            margin-bottom: 1.5rem;
+        }
+        .navbar {
+            box-shadow: 0 2px 4px rgba(0,0,0,.1);
+        }
+        .table-responsive {
+            background: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+    </style>
+</head>
+<body>
 
-<div class="col-md-9">
-    <table id="mitabla" class="table table-striped table-bordered"style="width:100%">
-        <thead>
-            <tr>
-                <td>Project Name</td>
-                <td>Client</td>
-                <td>Project Start</td>
-                <td>Project End</td>
-                <td>Status</td>
-                <td>Action</td>
-            </tr>
-        </thead>
-        <tbody>
-            {%for project in projects%}
-            <tr>
-                <td>{{project.1}}</td>
-                <td>{{project.6}}</td>
-                <td>{{project.7}}</td>
-                <td>{{project.8}}</td>
+<nav class="navbar navbar-dark bg-dark mb-4">
+    <div class="container-fluid">
+        <span class="navbar-brand mb-0 h1">Project Management System</span>
+    </div>
+</nav>
 
-                <td>
-                    {% if project.5 == 'OPEN' %}
-                    <span class="badge bg-success">{{project.5}}</span>
-                    {% elif project.5 == 'DOING' %}
-                    <span class="badge bg-warning">{{project.5}}</span>
-                    {% else %}
-                    <span class="badge bg-danger">{{project.5}}</span>
-                    {% endif %}
-                </td>
-                <td>
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editarModal{{ project.0 }}">
-                        Edit</button>
-                    <a href="/delete_project/{{project.0}}" class="btn btn-danger">Delete</a>
-                    <button class="btn btn-secondary" onclick="window.location.href='/change_status/{{project.0}}'">Change Status</button>
-
-                </td>
-                
-            </tr>
-            <div class="modal fade" id="editarModal{{ project.0 }}" tabindex="-1" role="dialog" aria-labelledby="editarModalLabel{{ project.0 }}" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="editarModalLabel{{ project.0 }}">Edit Project</h5>
-                        </div>
-                        <div class="modal-body">
-                            <form action="/edit_project/{{ project.0 }}" method="post">
-                                <div class="form-group">
-                                    <label for="project_name">Project Name</label>
-                                    <input type="text" name="project_name" placeholder="Project name" class="form-control" value="{{ project.1 }}" required>
-                                </div>
-                                <br>
-                                <div class="form-group">
-                                    <label for="client">Client</label>
-                                    <select name="client" class="form-control" required>
-                                        {% for client in clients %}
-                                        <option value="{{ client.0 }}" {% if client.0 == project.6 %}selected{% endif %}>{{ client.1 }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <br>
-                                <div class="form-group">
-                                    <label for="project_start">Project start</label>
-                                    <input type="date" name="project_start" placeholder="Project start" value="{{ project.3 }}" required>
-                                </div>
-                                <br>
-                                <div class="form-group">
-                                    <label for="project_end">Project end</label>
-                                    <input type="date" name="project_end" placeholder="Project end" value="{{ project.4 }}" required>
-                                </div>
-                                <br>
-                                <div class="form-group">
-                                    <label for="staticListInput">Status</label>
-                                    <select name="status" id="staticListInput" class="form-control">
-                                        <option value="OPEN" {% if project.5 == 'OPEN' %}selected{% endif %}>OPEN</option>
-                                        <option value="DOING" {% if project.5 == 'DOING' %}selected{% endif %}>DOING</option>
-                                        <option value="DONE" {% if project.5 == 'DONE' %}selected{% endif %}>DONE</option>
-                                    </select>
-                                </div>
-                                <br>
-                                <button type="submit" class="btn btn-primary">Save</button>
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
+<div class="container">
+    <div class="row">
+        <!-- Sidebar Forms -->
+        <div class="col-md-3">
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
             {% endfor %}
-        </tbody>
-        
-        <tfoot>
-            <tr>
-                <th>Project Name</th>
-                <th>Client</th>
-                <th>Project Start</th>
-                <th>Project End</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
-        </tfoot>
-    </table>
+            {% endif %}
+            {% endwith %}
+
+            <!-- Add Client Form -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Add Client</h5>
+                    <form action="/add_client" method="POST">
+                        <div class="mb-3">
+                            <label for="client_name" class="form-label">Client Name</label>
+                            <input type="text" name="client_name" class="form-control" placeholder="Enter client name">
+                        </div>
+                        <div class="mb-3">
+                            <label for="client_address" class="form-label">Client Address</label>
+                            <input type="text" name="client_address" class="form-control" placeholder="Enter address">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Add Client</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Add Project Form -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Add Project</h5>
+                    <form action="/add_project" method="POST">
+                        <div class="mb-3">
+                            <label for="project_name" class="form-label">Project Name</label>
+                            <input type="text" name="project_name" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="client" class="form-label">Client</label>
+                            <select name="client" class="form-select" required>
+                                {% for client in clients|reverse %}
+                                <option value="{{ client.0 }}">{{ client.1 }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select name="status" class="form-select">
+                                <option value="OPEN">OPEN</option>
+                                <option value="DOING">DOING</option>
+                                <option value="DONE">DONE</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Add Project</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <div class="table-responsive">
+                <table id="mitabla" class="table table-striped table-bordered" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Project Name</th>
+                            <th>Client</th>
+                            <th>Project Start</th>
+                            <th>Project End</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for project in projects %}
+                        <tr>
+                            <td>{{ project.1 }}</td>
+                            <td>{{ project.6 }}</td>
+                            <td>{{ project.7 }}</td>
+                            <td>{{ project.8 }}</td>
+                            <td>
+                                {% if project.5 == 'OPEN' %}
+                                <span class="badge bg-success">{{ project.5 }}</span>
+                                {% elif project.5 == 'DOING' %}
+                                <span class="badge bg-warning">{{ project.5 }}</span>
+                                {% else %}
+                                <span class="badge bg-danger">{{ project.5 }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editModal{{ project.0 }}">
+                                    Edit
+                                </button>
+                                <a href="/delete_project/{{ project.0 }}" class="btn btn-sm btn-danger">Delete</a>
+                                <button class="btn btn-sm btn-secondary" onclick="window.location.href='/change_status/{{ project.0 }}'">
+                                    Change Status
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- Edit Modal -->
+                        <div class="modal fade" id="editModal{{ project.0 }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Edit Project</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form action="/edit_project/{{ project.0 }}" method="post">
+                                            <div class="mb-3">
+                                                <label class="form-label">Project Name</label>
+                                                <input type="text" name="project_name" class="form-control" value="{{ project.1 }}" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Client</label>
+                                                <select name="client" class="form-select" required>
+                                                    {% for client in clients %}
+                                                    <option value="{{ client.0 }}" {% if client.0 == project.6 %}selected{% endif %}>
+                                                        {{ client.1 }}
+                                                    </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Project Start</label>
+                                                <input type="date" name="project_start" class="form-control" value="{{ project.3 }}" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Project End</label>
+                                                <input type="date" name="project_end" class="form-control" value="{{ project.4 }}" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Status</label>
+                                                <select name="status" class="form-select">
+                                                    <option value="OPEN" {% if project.5 == 'OPEN' %}selected{% endif %}>OPEN</option>
+                                                    <option value="DOING" {% if project.5 == 'DOING' %}selected{% endif %}>DOING</option>
+                                                    <option value="DONE" {% if project.5 == 'DONE' %}selected{% endif %}>DONE</option>
+                                                </select>
+                                            </div>
+                                            <div class="modal-footer px-0 pb-0">
+                                                <button type="submit" class="btn btn-primary">Save changes</button>
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/static/DataTables/datatables.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#mitabla').DataTable({
+            searching: true,
+            ordering: true,
+            responsive: true,
+            dom: 'B<"clear">lfrtip',
+            buttons: ['csv', 'pdf', 'print', 'colvis'],
+            language: {
+                url: "//cdn.datatables.net/plug-ins/1.10.16/i18n/Indonesian.json"
+            }
+        });
+    });
+</script>
 
-
-{% endblock %}
+</body>
+</html>
